@@ -1,13 +1,19 @@
 ﻿using System.Reflection;
 
-[assembly: AssemblyTitle("NHandlebars")]
+[assembly: AssemblyTitle(AssemblyInfo.ProductName)]
 [assembly: AssemblyDescription("Handlebars template system for .NET")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("TsvBits")]
-[assembly: AssemblyProduct("NHandlebars")]
+[assembly: AssemblyCompany(AssemblyInfo.CompanyName)]
+[assembly: AssemblyProduct(AssemblyInfo.ProductName)]
 [assembly: AssemblyCopyright("Copyright © 2014 Sergey Todyshev. All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
+[assembly: AssemblyVersion(AssemblyInfo.Version)]
+[assembly: AssemblyFileVersion(AssemblyInfo.Version)]
 
-[assembly: AssemblyVersion("0.1.0.0")]
-[assembly: AssemblyFileVersion("0.1.0.0")]
+internal static class AssemblyInfo
+{
+	public const string ProductName = "NHandlebars";
+	public const string CompanyName = "TsvBits";
+	public const string Version = "0.0.1.0";
+}
