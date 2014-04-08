@@ -2,7 +2,7 @@
 using System.Text;
 using System.Xml.Linq;
 
-namespace Patronix
+namespace NHandlebars.Core
 {
 	/// <summary>
 	/// Provides utility extension methods.

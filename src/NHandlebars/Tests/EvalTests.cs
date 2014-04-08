@@ -1,8 +1,9 @@
-﻿#if NUNIT
+﻿using NHandlebars.Core;
+#if NUNIT
 using System.Collections.Generic;
 using NUnit.Framework;
 
-namespace Patronix.Tests
+namespace NHandlebars.Tests
 {
 	[TestFixture]
 	public class EvalTests

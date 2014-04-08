@@ -8,7 +8,7 @@ using System.Xml;
 using System.Xml.Linq;
 using System.Xml.XPath;
 
-namespace Patronix
+namespace NHandlebars.Core
 {
 	//DONE: support basic System.Data objects
 	//TODO: support indexers, functions and other C# expressions

@@ -1,7 +1,8 @@
-﻿#if NUNIT
+﻿using NHandlebars.Core;
+#if NUNIT
 using NUnit.Framework;
 
-namespace Patronix.Tests
+namespace NHandlebars.Tests
 {
 	/// <summary>
 	/// Tests for <see cref="Context"/>.

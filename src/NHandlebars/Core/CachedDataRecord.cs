@@ -1,7 +1,7 @@
 using System;
 using System.Data;
 
-namespace Patronix
+namespace NHandlebars.Core
 {
 	//TODO: implement CachedDataRecord
 	internal sealed class CachedDataRecord : IDataRecord

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 
-namespace Patronix
+namespace NHandlebars.Core
 {
 	/// <summary>
 	/// Represents context of the templating engine. Implements data scope stack and evaluation of path expressions.
