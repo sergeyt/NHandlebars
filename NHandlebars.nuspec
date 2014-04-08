@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<package>
+	<metadata>
+		<id>NHandlebars</id>
+		<version>0.1.0.0</version>
+		<authors>Sergey Todyshev (stodyshev@gmail.com)</authors>
+		<owners>Sergey Todyshev</owners>
+		<licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
+		<projectUrl>https://github.com/sergeyt/NHandlebars</projectUrl>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<description>Handlebars template system for .NET</description>
+		<copyright>Copyright 2014</copyright>
+		<tags>handlebars template</tags>
+		<frameworkAssemblies>
+			<frameworkAssembly assemblyName="System.Data"/>
+			<frameworkAssembly assemblyName="System.Xml"/>
+			<frameworkAssembly assemblyName="System.Xml.Linq"/>
+		</frameworkAssemblies>
+	</metadata>
+	<files>
+		<file src="build/release/NHandlebars.dll" target="lib/net35"/>
+		<file src="build/release/NHandlebars.dll" target="lib/net40"/>
+		<file src="build/release/NHandlebars.dll" target="lib/net45"/>
+	</files>
+</package>

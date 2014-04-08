@@ -1,0 +1,7 @@
+/t:library
+/r:System.Data.dll
+/r:System.Xml.dll
+/r:System.Xml.Linq.dll
+/o+
+/recurse:./src/NHandlebars/*.cs
+/out:NHandlebars.dll

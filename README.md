@@ -1,4 +1,5 @@
-NHandlebars
-===========
+[![Build Status](https://drone.io/github.com/sergeyt/NHandlebars/status.png)](https://drone.io/github.com/sergeyt/NHandlebars/latest)
 
-Handlebars template system for .NET
+# NHandlebars
+
+[Handlebars](http://handlebarsjs.com/) template system for .NET
