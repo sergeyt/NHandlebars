@@ -59,7 +59,7 @@
 	<target name="build">
 		<csc target="library" output="${outdir}/${assembly}.dll"
 			 debug="${debug}" define="${define}"
-			 keyfile="${rootdir}/SharpExpress.snk">
+			 keyfile="${rootdir}/NHandlebars.snk">
 			<references>
 				<include name="System.dll"/>
 				<include name="System.Core.dll"/>
