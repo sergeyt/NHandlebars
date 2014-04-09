@@ -62,7 +62,7 @@ namespace NHandlebars
 			{
 				if (pair.Key == TokenKind.Text)
 				{
-					stack.Peek().Nodes.Add(new TextNode(pair.Value));
+					stack.Peek().Add(new TextNode(pair.Value));
 					continue;
 				}
 
@@ -92,11 +92,11 @@ namespace NHandlebars
 					if (block.Type != type)
 						throw new FormatException("Unmatched close tag");
 
-					stack.Peek().Nodes.Add(block.ToNode());
+					stack.Peek().Add(block.ToNode());
 				}
 				else
 				{
-					stack.Peek().Nodes.Add(new ExpressionNode(expr));
+					stack.Peek().Add(new ExpressionNode(expr));
 				}
 			}
 
@@ -110,13 +110,18 @@ namespace NHandlebars
 
 		private class Block
 		{
-			public BlockKind Kind;
-			public string Expression;
-			public readonly List<Node> Nodes = new List<Node>();
+			private BlockKind _kind;
+			private string _expression;
+			private readonly List<Node> _nodes = new List<Node>();
+
+			public void Add(Node node)
+			{
+				_nodes.Add(node);
+			}
 
 			public string Type
 			{
-				get { return Kind.ToString().ToLowerInvariant(); }
+				get { return _kind.ToString().ToLowerInvariant(); }
 			}
 
 			public static Block Create(string type, string expr)
@@ -126,26 +131,26 @@ namespace NHandlebars
 					case "with":
 						return new Block
 						{
-							Kind = BlockKind.With,
-							Expression = expr,
+							_kind = BlockKind.With,
+							_expression = expr,
 						};
 					case "each":
 						return new Block
 						{
-							Kind = BlockKind.Each,
-							Expression = expr,
+							_kind = BlockKind.Each,
+							_expression = expr,
 						};
 					case "if":
 						return new Block
 						{
-							Kind = BlockKind.If,
-							Expression = expr,
+							_kind = BlockKind.If,
+							_expression = expr,
 						};
 					case "unless":
 						return new Block
 						{
-							Kind = BlockKind.Unless,
-							Expression = expr,
+							_kind = BlockKind.Unless,
+							_expression = expr,
 						};
 					default:
 						throw new NotSupportedException(string.Format("Unsupported block '{0}'", type));
@@ -154,18 +159,18 @@ namespace NHandlebars
 
 			public Node ToNode()
 			{
-				switch (Kind)
+				switch (_kind)
 				{
 					case BlockKind.Container:
-						return new ContainerNode(Nodes);
+						return new ContainerNode(_nodes);
 					case BlockKind.With:
-						return new WithNode(Expression, new ContainerNode(Nodes));
+						return new WithNode(_expression, new ContainerNode(_nodes));
 					case BlockKind.Each:
-						return new EachNode(Expression, new ContainerNode(Nodes));
+						return new EachNode(_expression, new ContainerNode(_nodes));
 					case BlockKind.If:
-						return new IfNode(Expression, new ContainerNode(Nodes));
+						return new IfNode(_expression, new ContainerNode(_nodes));
 					case BlockKind.Unless:
-						return new UnlessNode(Expression, new ContainerNode(Nodes));
+						return new UnlessNode(_expression, new ContainerNode(_nodes));
 					default:
 						throw new ArgumentOutOfRangeException();
 				}

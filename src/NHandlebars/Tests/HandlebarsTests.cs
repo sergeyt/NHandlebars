@@ -11,7 +11,7 @@ namespace NHandlebars.Tests
 		[TestCase("", Result = "")]
 		[TestCase("abc", Result = "abc")]
 		[TestCase("{{value}}", Result = "test")]
-		[TestCase("before {{value}} after", Result = "before test after")]
+		[TestCase("[{{value}}]", Result = "[test]")]
 		[TestCase("{", Result = "{")]
 		[TestCase("}", Result = "}")]
 		[TestCase("{{", Result = "{{")]
@@ -22,6 +22,10 @@ namespace NHandlebars.Tests
 		[TestCase("}}}}", Result = "}}}}")]
 		[TestCase("{{a", ExpectedException = typeof(FormatException))]
 		[TestCase("{{{a", ExpectedException = typeof(FormatException))]
+		[TestCase("{{#if test}}abc{{/unless}}", ExpectedException = typeof(FormatException))]
+		[TestCase("{{#unless test}}abc{{/if}}", ExpectedException = typeof(FormatException))]
+		[TestCase("{{#with test}}abc{{/if}}", ExpectedException = typeof(FormatException))]
+		[TestCase("{{#each test}}abc{{/if}}", ExpectedException = typeof(FormatException))]
 		public string Simple(string input)
 		{
 			return Handlebars.Render(input, new {value = "test"});
@@ -64,10 +68,27 @@ namespace NHandlebars.Tests
 		[TestCase("[{{#unless val}}test{{/unless}}]", "ok", Result = "[]")]
 		public string Unless(string input, object value)
 		{
-			return Handlebars.Render(input, new { val = value });
+			return Handlebars.Render(input, new {val = value});
 		}
 
-		// TODO with, each tests
+		[TestCase("[{{#with item}}[{{val}}]{{/with}}]", Result = "[[test]]")]
+		public string With(string input)
+		{
+			return Handlebars.Render(input, new {item = new {val = "test"}});
+		}
+
+		[TestCase("[{{#each items}}[{{val}}]{{/each}}]", Result = "[[A][B]]")]
+		public string Each(string input)
+		{
+			return Handlebars.Render(input, new
+			{
+				items = new[]
+				{
+					new {val = "A"},
+					new {val = "B"}
+				}
+			});
+		}
 	}
 }
 #endif
