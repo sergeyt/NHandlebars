@@ -18,11 +18,33 @@ namespace NHandlebars
 			if (template == null) throw new ArgumentNullException("template");
 			if (data == null) throw new ArgumentNullException("data");
 
-			var fn = Compile(template);
+			return Render(Compile(template), data);
+		}
+
+		public static string Render(TextReader template, object data)
+		{
+			if (template == null) throw new ArgumentNullException("template");
+			if (data == null) throw new ArgumentNullException("data");
+
+			return Render(Compile(template), data);
+		}
+
+		public static void Render(TextReader template, TextWriter output, object data)
+		{
+			if (template == null) throw new ArgumentNullException("template");
+			if (output == null) throw new ArgumentNullException("output");
+			if (data == null) throw new ArgumentNullException("data");
+
+			var render = Compile(template);
+			render(output, data);
+		}
+
+		private static string Render(RenderFn template, object data)
+		{
 			var sb = new StringBuilder();
 
 			using (var writer = new StringWriter(sb))
-				fn(writer, data);
+				template(writer, data);
 
 			return sb.ToString();
 		}
