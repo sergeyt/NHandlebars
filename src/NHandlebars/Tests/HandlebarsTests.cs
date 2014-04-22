@@ -11,7 +11,9 @@ namespace NHandlebars.Tests
 		[TestCase("", Result = "")]
 		[TestCase("abc", Result = "abc")]
 		[TestCase("{{value}}", Result = "test")]
+		[TestCase("{{ value }}", Result = "test")]
 		[TestCase("[{{value}}]", Result = "[test]")]
+		[TestCase("[{{ value }}]", Result = "[test]")]
 		[TestCase("{", Result = "{")]
 		[TestCase("}", Result = "}")]
 		[TestCase("{{", Result = "{{")]
@@ -29,6 +31,24 @@ namespace NHandlebars.Tests
 		public string Simple(string input)
 		{
 			return Handlebars.Render(input, new {value = "test"});
+		}
+
+		[TestCase("{{value}}", null, Result = "")]
+		[TestCase("{{value}}", "", Result = "")]
+		[TestCase("{{value}}", "a", Result = "a")]
+		[TestCase("{{value}}", "<", Result = "&lt;")]
+		[TestCase("{{{value}}}", "<", Result = "<")]
+		[TestCase("{{value}}", ">", Result = "&gt;")]
+		[TestCase("{{{value}}}", ">", Result = ">")]
+		[TestCase("{{value}}", "\"", Result = "&quot;")]
+		[TestCase("{{{value}}}", "\"", Result = "\"")]
+		[TestCase("{{value}}", "\'", Result = "&apos;")]
+		[TestCase("{{{value}}}", "\'", Result = "'")]
+		[TestCase("{{value}}", "\u00a0", Result = "&#160;")]
+		[TestCase("{{{value}}}", "\u00a0", Result = "\u00a0")]
+		public string Escaping(string input, string value)
+		{
+			return Handlebars.Render(input, new {value});
 		}
 
 		[TestCase("{{#if val}}test{{/if}}", false, Result = "")]

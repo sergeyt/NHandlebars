@@ -13,6 +13,12 @@ namespace NHandlebars
 	/// </summary>
 	public static class Handlebars
 	{
+		/// <summary>
+		/// Renders given template with given data.
+		/// </summary>
+		/// <param name="template">The template to render.</param>
+		/// <param name="data">The data to apply.</param>
+		/// <returns>The template output.</returns>
 		public static string Render(string template, object data)
 		{
 			if (template == null) throw new ArgumentNullException("template");
@@ -21,6 +27,12 @@ namespace NHandlebars
 			return Render(Compile(template), data);
 		}
 
+		/// <summary>
+		/// Renders given template with given data.
+		/// </summary>
+		/// <param name="template">The template source to parse.</param>
+		/// <param name="data">The data to render.</param>
+		/// <returns>The template output.</returns>
 		public static string Render(TextReader template, object data)
 		{
 			if (template == null) throw new ArgumentNullException("template");
@@ -29,6 +41,12 @@ namespace NHandlebars
 			return Render(Compile(template), data);
 		}
 
+		/// <summary>
+		/// Renders given template with given data.
+		/// </summary>
+		/// <param name="template">The template source to parse.</param>
+		/// <param name="output">The output for template result.</param>
+		/// <param name="data">The data to render.</param>
 		public static void Render(TextReader template, TextWriter output, object data)
 		{
 			if (template == null) throw new ArgumentNullException("template");
@@ -80,15 +98,15 @@ namespace NHandlebars
 			var stack = new Stack<Block>();
 			stack.Push(new Block());
 
-			foreach (var pair in Split(input))
+			foreach (var token in Scan(input))
 			{
-				if (pair.Key == TokenKind.Text)
+				if (token.Kind == TokenKind.Text)
 				{
-					stack.Peek().Add(new TextNode(pair.Value));
+					stack.Peek().Add(new TextNode(token.Value));
 					continue;
 				}
 
-				var expr = pair.Value;
+				var expr = token.Value;
 				if (expr[0] == '#')
 				{
 					var type = "";
@@ -118,7 +136,11 @@ namespace NHandlebars
 				}
 				else
 				{
-					stack.Peek().Add(new ExpressionNode(expr));
+					stack.Peek().Add(
+						token.Kind == TokenKind.UnescapedExpression
+							? (Node) new UnescapedExpressionNode(expr)
+							: new ExpressionNode(expr)
+						);
 				}
 			}
 
@@ -201,7 +223,7 @@ namespace NHandlebars
 
 		private enum BlockKind { Container, With, Each, If, Unless }
 
-		static IEnumerable<KeyValuePair<TokenKind, string>> Split(TextReader input)
+		static IEnumerable<Token> Scan(TextReader input)
 		{
 			var c = input.Read();
 
@@ -219,7 +241,7 @@ namespace NHandlebars
 				{
 					if (token.Length > 0)
 					{
-						yield return new KeyValuePair<TokenKind, string>(TokenKind.Text, token.ToString());
+						yield return new Token(TokenKind.Text, token.ToString());
 						token.Length = 0;
 					}
 
@@ -238,7 +260,7 @@ namespace NHandlebars
 							if (token.Length == 0)
 								throw new FormatException("Empty expression");
 
-							yield return new KeyValuePair<TokenKind, string>(TokenKind.Expression, token.ToString());
+							yield return new Token(n == 3 ? TokenKind.UnescapedExpression : TokenKind.Expression, token.ToString());
 
 							n = 0;
 							token.Length = 0;
@@ -265,14 +287,27 @@ namespace NHandlebars
 
 			if (token.Length > 0)
 			{
-				yield return new KeyValuePair<TokenKind, string>(TokenKind.Text, token.ToString());
+				yield return new Token(TokenKind.Text, token.ToString());
+			}
+		}
+
+		private struct Token
+		{
+			public readonly TokenKind Kind;
+			public readonly string Value;
+
+			public Token(TokenKind kind, string value)
+			{
+				Kind = kind;
+				Value = value;
 			}
 		}
 
 		private enum TokenKind
 		{
 			Text,
-			Expression
+			Expression,
+			UnescapedExpression,
 		}
 	}
 }
