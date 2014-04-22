@@ -15,5 +15,5 @@ internal static class AssemblyInfo
 {
 	public const string ProductName = "NHandlebars";
 	public const string CompanyName = "TsvBits";
-	public const string Version = "0.0.1.0";
+	public const string Version = "0.0.2.0";
 }
