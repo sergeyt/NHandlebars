@@ -1,5 +1,6 @@
 [![Build Status](https://drone.io/github.com/sergeyt/NHandlebars/status.png)](https://drone.io/github.com/sergeyt/NHandlebars/latest)
-[![NuGet version](https://badge.fury.io/nu/NHandlebars.png)](http://badge.fury.io/nu/NHandlebars)
+[![NuGet Version](http://img.shields.io/nuget/v/NHandlebars.svg?style=flat)](https://www.nuget.org/packages/NHandlebars/)
+[![NuGet Downloads](http://img.shields.io/nuget/dt/NHandlebars.svg?style=flat)](https://www.nuget.org/packages/NHandlebars/)
 
 # NHandlebars
 
