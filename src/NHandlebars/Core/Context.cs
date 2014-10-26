@@ -11,17 +11,25 @@ namespace NHandlebars.Core
 	/// </summary>
 	internal sealed class Context
 	{
+		private static readonly IDictionary<string,object> EmptyMeta = new Dictionary<string, object>();
+
 		private sealed class Scope
 		{
-			public Scope(object target, Scope parent)
+			public Scope(object target, IDictionary<string,object> meta, Scope parent)
 			{
 				Parent = parent;
 				Target = target;
+				Meta = meta ?? EmptyMeta;
 			}
 
 			public Scope Parent { get; private set; }
-
 			public object Target { get; private set; }
+			public IDictionary<string, object> Meta { get; private set; }
+
+			public bool IsSequence
+			{
+				get { return Target is Array || (!(Target is string) && Target is IEnumerable); }
+			}
 		}
 
 		private readonly Dictionary<object,Dictionary<string,object>> _targetValueCache = new Dictionary<object, Dictionary<string, object>>();
@@ -33,7 +41,7 @@ namespace NHandlebars.Core
 		/// <param name="root">The root data object.</param>
 		public Context(object root)
 		{
-			_scopeStack.Push(new Scope(root, null));
+			_scopeStack.Push(new Scope(root, null, null));
 		}
 
 		//TODO: cache expression results per target object
@@ -47,6 +55,21 @@ namespace NHandlebars.Core
 			if (expression == "." || expression == "this")
 			{
 				return _scopeStack.Peek().Target;
+			}
+
+			if (expression.StartsWith("@"))
+			{
+				var scope = _scopeStack.Peek();
+				while (scope != null)
+				{
+					object value;
+					if (scope.Meta.TryGetValue(expression, out value))
+					{
+						return value;
+					}
+					scope = scope.Parent;
+				}
+				return null;
 			}
 
 			return (from scope in _scopeStack
@@ -109,12 +132,12 @@ namespace NHandlebars.Core
 		/// Pushes new data scope.
 		/// </summary>
 		/// <param name="scope">The data scope to push.</param>
-		public void Push(object scope)
+		public void Push(object scope, IDictionary<string, object> meta)
 		{
 			if (scope == null) throw new ArgumentNullException("scope");
 
 			var parent = _scopeStack.Count > 0 ? _scopeStack.Peek() : null;
-			_scopeStack.Push(new Scope(scope, parent));
+			_scopeStack.Push(new Scope(scope, meta, parent));
 		}
 
 		/// <summary>
@@ -144,7 +167,7 @@ namespace NHandlebars.Core
 						break;
 					}
 
-					scope = new Scope(value, scope);
+					scope = new Scope(value, null, scope);
 				}
 			}
 

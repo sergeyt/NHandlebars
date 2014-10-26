@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using NHandlebars.Core;
@@ -134,6 +135,18 @@ namespace NHandlebars
 
 					stack.Peek().Add(block.ToNode());
 				}
+				else if (expr == "else")
+				{
+					var block = stack.Peek();
+					if (block.Kind == BlockKind.If || block.Kind == BlockKind.Unless)
+					{
+						block.EnterElse();
+					}
+					else
+					{
+						throw new FormatException("Invalid else usage");
+					}
+				}
 				else
 				{
 					stack.Peek().Add(
@@ -152,21 +165,26 @@ namespace NHandlebars
 			return stack.Pop().ToNode();
 		}
 
-		private class Block
+		private sealed class Block
 		{
-			private BlockKind _kind;
 			private string _expression;
 			private readonly List<Node> _nodes = new List<Node>();
+			private readonly List<Node> _elseNodes = new List<Node>();
+			private bool _inElseBlock;
+
+			public void EnterElse()
+			{
+				_inElseBlock = true;
+			}
 
 			public void Add(Node node)
 			{
-				_nodes.Add(node);
+				if (_inElseBlock) _elseNodes.Add(node);
+				else _nodes.Add(node);
 			}
 
-			public string Type
-			{
-				get { return _kind.ToString().ToLowerInvariant(); }
-			}
+			public BlockKind Kind { get; private set; }
+			public string Type { get { return Kind.ToString().ToLowerInvariant(); } }
 
 			public static Block Create(string type, string expr)
 			{
@@ -175,25 +193,25 @@ namespace NHandlebars
 					case "with":
 						return new Block
 						{
-							_kind = BlockKind.With,
+							Kind = BlockKind.With,
 							_expression = expr,
 						};
 					case "each":
 						return new Block
 						{
-							_kind = BlockKind.Each,
+							Kind = BlockKind.Each,
 							_expression = expr,
 						};
 					case "if":
 						return new Block
 						{
-							_kind = BlockKind.If,
+							Kind = BlockKind.If,
 							_expression = expr,
 						};
 					case "unless":
 						return new Block
 						{
-							_kind = BlockKind.Unless,
+							Kind = BlockKind.Unless,
 							_expression = expr,
 						};
 					default:
@@ -203,7 +221,7 @@ namespace NHandlebars
 
 			public Node ToNode()
 			{
-				switch (_kind)
+				switch (Kind)
 				{
 					case BlockKind.Container:
 						return new ContainerNode(_nodes);
@@ -212,9 +230,9 @@ namespace NHandlebars
 					case BlockKind.Each:
 						return new EachNode(_expression, new ContainerNode(_nodes));
 					case BlockKind.If:
-						return new IfNode(_expression, new ContainerNode(_nodes));
+						return new IfNode(_expression, new ContainerNode(_nodes), new ContainerNode(_elseNodes));
 					case BlockKind.Unless:
-						return new UnlessNode(_expression, new ContainerNode(_nodes));
+						return new UnlessNode(_expression, new ContainerNode(_nodes), new ContainerNode(_elseNodes));
 					default:
 						throw new ArgumentOutOfRangeException();
 				}
@@ -241,8 +259,9 @@ namespace NHandlebars
 				{
 					if (token.Length > 0)
 					{
-						yield return new Token(TokenKind.Text, token.ToString());
+						var val = token.ToString();
 						token.Length = 0;
+						yield return new Token(TokenKind.Text, val);
 					}
 
 					// read expression
@@ -260,10 +279,11 @@ namespace NHandlebars
 							if (token.Length == 0)
 								throw new FormatException("Empty expression");
 
-							yield return new Token(n == 3 ? TokenKind.UnescapedExpression : TokenKind.Expression, token.ToString());
-
+							var kind = n == 3 ? TokenKind.UnescapedExpression : TokenKind.Expression;
+							var expr = token.ToString();
 							n = 0;
 							token.Length = 0;
+							yield return new Token(kind, expr);
 							break;
 						}
 
@@ -278,7 +298,7 @@ namespace NHandlebars
 				for (var i = 0; i < n; i++)
 					token.Append('{');
 
-				if (c >= 0)
+				if (c >= 0 && c != '{')
 				{
 					token.Append((char)c);
 					c = input.Read();

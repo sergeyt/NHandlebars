@@ -16,6 +16,11 @@ namespace NHandlebars.Core
 
 	internal static class Evaluator
 	{
+		public static bool IsTrue(this object value)
+		{
+			return !value.IsFalse();
+		}
+
 		public static bool IsFalse(this object value)
 		{
 			if (value is bool)

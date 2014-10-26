@@ -21,7 +21,7 @@ namespace NHandlebars.Core
 
 			try
 			{
-				context.Push(value);
+				context.Push(value, null);
 				_content.Write(writer, context);
 			}
 			catch (Exception)

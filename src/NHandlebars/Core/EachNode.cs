@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace NHandlebars.Core
 {
@@ -16,20 +18,28 @@ namespace NHandlebars.Core
 
 		public override void Write(TextWriter writer, Context context)
 		{
-			var items = context.GetValues(_expression);
+			var items = context.GetValues(_expression).ToArray();
 
+			int index = 0;
 			foreach (var item in items)
 			{
 				try
 				{
-					context.Push(item);
+					var meta = new Dictionary<string, object>(StringComparer.Ordinal)
+					{
+						{"@index", index},
+						{"@first", index == 0},
+						{"@last", index == items.Length - 1}
+					};
+
+					context.Push(item, meta);
 					_content.Write(writer, context);
+					index++;
 				}
-				catch (Exception)
+				finally
 				{
 					context.Pop();
 				}
-				
 			}
 		}
 	}
